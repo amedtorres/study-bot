@@ -1,145 +1,136 @@
-AI Study Bot
+# AI Study Bot 🚀
+
 Bot de Telegram con IA que lee tus notas de Obsidian desde Google Drive y responde preguntas sobre tu curso.
 
-Mostrar imagen Mostrar imagen Mostrar imagen Mostrar imagen
+## ¿Qué hace?
 
-✨ ¿Qué hace?
-Tienes apuntes en Obsidian (.md) sincronizados en Google Drive. Le preguntas algo a tu bot de Telegram y él:
+Tienes tus apuntes de Obsidian (.md) sincronizados con Google Drive. Al enviar una pregunta al bot:
 
-Busca en tus archivos el contenido relevante
-Lo lee usando la API de Google Drive
-Responde con Claude AI basándose SOLO en tus notas
-Solo responde a ti (privado por Chat ID)
-Tú → Telegram → Make → Google Drive → Claude AI → Telegram → Tú
-🏗️ Arquitectura
-┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│  Telegram   │────▶│     Make     │────▶│ Google Drive │
-│    Bot      │     │  AI Agent    │     │  API (HTTP)  │
-└─────────────┘     └──────┬───────┘     └──────────────┘
-                           │
-                    ┌──────▼───────┐
-                    │  Claude AI   │
-                    │  Haiku 4.5   │
-                    └──────────────┘
-🧩 Componentes
-Componente	Uso
-Telegram Bot	Interfaz de chat
-Make.com	Orquestador del flujo
-Make AI Agent	Motor de IA (Claude Haiku 4.5)
-Google Drive API	Lectura de archivos .md
-Google OAuth 2.0	Autenticación segura
-Obsidian	Donde escribes tus notas
-🚀 Cómo montarlo tú mismo
-Requisitos previos
-Cuenta en Make.com (plan gratuito sirve)
-Cuenta de Google con Google Drive
-Telegram en tu móvil
-Obsidian instalado (opcional pero recomendado)
-PASO 1: Crear tu Bot de Telegram
-Abre Telegram y busca @BotFather
-Escribe /newbot
-Dale un nombre y username (debe terminar en _bot)
-Copia el TOKEN que te da
-PASO 2: Preparar Google Drive
-Instala Google Drive for Desktop
-Crea una carpeta en Drive para tus notas, por ejemplo: Mi Bóveda/Curso/
-Mete tus archivos .md dentro (o cualquier archivo de texto)
-PASO 3: Configurar Google Cloud (OAuth)
-Ve a console.cloud.google.com
-Crea un proyecto nuevo
-Activa la Google Drive API
-Ve a "Credenciales" → "Crear credenciales" → "OAuth 2.0"
-Tipo: Aplicación web
-En URIs de redireccionamiento añade:
-   https://www.integromat.com/oauth/cb/oauth2
-   https://eu1.make.com/oauth/cb/oauth2
-Copia el Client ID y Client Secret
-En "Pantalla de consentimiento" → añádete como usuario de prueba
-PASO 4: Montar el flujo en Make
-Importa el blueprint bot-tajamar-blueprint.json de este repositorio:
+- Busca el contenido relevante en Google Drive.
+- Lee las notas mediante la Google Drive API.
+- Utiliza un AI Agent para generar la respuesta basándose en tus notas.
+- Devuelve la respuesta directamente en Telegram.
+- Restringe el acceso mediante Chat ID.
 
-En Make → "Scenarios" → "Create a new scenario"
-Click en los tres puntos (···) → "Import Blueprint"
-Sube el archivo bot-tajamar-blueprint.json
-Luego configura las conexiones:
+## Arquitectura
 
-Módulo	Qué conectar
-Telegram Bot	Tu token de BotFather
-Google Drive	Tu cuenta de Google
-HTTP OAuth	Tu Client ID y Client Secret
-Make AI Agent	Se conecta automáticamente
-PASO 5: Personalizar el escenario
-En el módulo Make AI Agent, cambia las Instructions:
+```text
+Tú ─────► Telegram
+ │
+ ▼
 
-Eres un asistente de estudio especializado en [TU CURSO].
+ │
+ ▼
+Make
+ ├───────── Google Drive
+ │                      │
+ │                      ▼
+ │              Notas de Obsidian
+ │                      │
+ ▼                      ▼
+AI Agent ◄──────────────┘
+ │
+ ▼
+Telegram
+ │
+ ▼
+Tú
+```
 
-Tu rol:
-- Responder preguntas sobre el curso de forma clara y educativa
-- Usar las notas del estudiante como referencia
-- Explicar conceptos de forma didáctica
-- Si no encuentras información, di "No encontré eso en tus notas"
+## Componentes
 
-IMPORTANTE: Tienes dos herramientas HTTP:
-1. Úsala primero para BUSCAR el archivo en Google Drive
-2. Úsala después para DESCARGAR y leer su contenido
-SIEMPRE usa ambas herramientas antes de responder.
+- **Telegram Bot** — Interfaz de chat.
+- **[Make.com](http://Make.com)** — Orquestación del flujo.
+- **Make AI Agent** — Motor de IA.
+- **LLM** — Generación de respuestas.
+- **Google Drive API** — Búsqueda y lectura de notas.
+- **Google OAuth 2.0** — Autenticación.
+- **Obsidian** — Gestión de las notas.
 
-Sé amable, paciente y didáctico. Responde en español.
-PASO 6: Añadir seguridad (solo tú puedes usarlo)
-Envía un mensaje a tu bot desde Telegram
-En Make, ejecuta el escenario una vez y busca tu Chat ID en los outputs del módulo Telegram
-En el filtro entre Telegram y AI Agent, pon tu Chat ID:
-   {{6.message.chat.id}} == TU_CHAT_ID
-PASO 7: Activar y probar
-En Make, activa "Immediately as data arrives"
-Abre Telegram y escribe a tu bot
-¡Debería responder basándose en tus notas!
-📁 Estructura de archivos recomendada en Drive
+## Cómo Montarlo
+
+### Requisitos
+
+- Cuenta en [Make.com](http://Make.com).
+- Cuenta de Google con Google Drive.
+- Cuenta de Telegram.
+- Obsidian instalado, si quieres utilizar tus propias notas.
+
+### 1. Crear el Bot de Telegram
+
+1. Abre Telegram y busca `@BotFather`.
+2. Crea un nuevo bot.
+3. Guarda el TOKEN proporcionado.
+
+### 2. Preparar Google Drive
+
+Crea una carpeta para tus notas y sincronízala con Google Drive.
+
+```text
 Mi Bóveda/
-└── Mi Curso/
-    ├── Módulo 1/
-    │   ├── 01-introduccion.md
-    │   └── 02-conceptos.md
-    ├── Módulo 2/
-    │   └── 03-practica.md
-    └── Certificaciones/
-        └── examen-prep.md
-⚙️ Variables a configurar
-Variable	Dónde	Descripción
-BOT_TOKEN	Módulo Telegram	Token de BotFather
-CHAT_ID	Filtro de seguridad	Tu Chat ID personal
-CLIENT_ID	Conexión OAuth	Google Cloud Client ID
-CLIENT_SECRET	Conexión OAuth	Google Cloud Client Secret
-FOLDER_ID	URL de búsqueda HTTP	ID de tu carpeta en Drive
-💰 Coste aproximado
-Servicio	Plan	Coste
-Make.com	Gratuito	0€ (1000 ops/mes)
-Make AI Agent	Incluido en Make	0€
-Google Drive	Gratuito	0€
-Telegram Bot	Gratuito	0€
-TOTAL		0€/mes
-🔐 Seguridad
-✅ Filtro por Chat ID (solo tú puedes usarlo)
-✅ Google OAuth 2.0 (acceso seguro a Drive)
-✅ App en modo prueba (solo usuarios autorizados)
-✅ 2FA activado en Make
-✅ Bot no puede unirse a grupos
-🛠️ Posibles mejoras
- Soporte multi-idioma
- Comando /resumen para resumir la última clase
- Comando /quiz para generar preguntas de repaso
- Notificaciones programadas de repaso
- Soporte para imágenes y PDFs
-📸 Demo
-El bot buscando y leyendo notas reales de Obsidian y respondiendo en Telegram
+└── Curso/
+    ├── modulo-1.md
+    ├── modulo-2.md
+    └── apuntes.md
+```
 
-🤝 Contribuciones
-¡Las PRs son bienvenidas! Si lo montas y le añades mejoras, manda un pull request.
+### 3. Configurar Google Cloud
 
-📄 Licencia
-MIT — úsalo libremente para tu propio estudio.
+1. Crea un proyecto en Google Cloud Console.
+2. Activa la Google Drive API.
+3. Crea unas credenciales OAuth 2.0.
+4. Configura las URLs de redireccionamiento necesarias para Make.
+5. Guarda el Client ID y Client Secret.
+6. Añade tu cuenta como usuario de prueba en la pantalla de consentimiento OAuth.
 
-Creado como proyecto personal para el Máster de IA y Data Engineering de Tajamar
+### 4. Importar el escenario en Make
+
+En Make:
+`Scenarios` --> `Create a new scenario` --> `···` --> `Import Blueprint`
+
+Importa el archivo:
+`bot-blueprint.json`
+
+Después configura las conexiones de Telegram, Google Drive, HTTP OAuth y Make AI Agent.
+
+### 5. Configurar el AI Agent
+
+Personaliza las instrucciones del agente para que utilice las notas como fuente de información.
 
 
+### 6. Configurar el acceso
 
+Para permitir únicamente tu usuario, añade un filtro mediante tu Chat ID.
+
+Obtén tu Chat ID enviando un mensaje al bot y ejecutando el escenario en Make.
+
+Ejemplo:
+```text
+{{6.message.chat.id}} == TU_CHAT_ID
+```
+
+### 7. Activar
+
+Configura el escenario para ejecutarse:
+`Immediately as data arrives`
+
+Activa el escenario y envía una pregunta al bot desde Telegram.
+
+## Variables
+
+- `BOT_TOKEN` — Token del bot de Telegram.
+- `CHAT_ID` — ID del usuario autorizado.
+- `CLIENT_ID` — Google Cloud OAuth Client ID.
+- `CLIENT_SECRET` — Google Cloud OAuth Client Secret.
+- `FOLDER_ID` — ID de la carpeta de Google Drive.
+
+> No subas credenciales reales al repositorio.
+
+## Contribuciones 🤝
+
+Las Pull Requests son bienvenidas.
+
+1. Haz un fork del repositorio.
+2. Crea una nueva rama.
+3. Realiza tus cambios.
+4. Abre un Pull Request.

@@ -1,0 +1,1217 @@
+{
+    "name": "Bot TAJAMAR",
+    "flow": [
+        {
+            "id": 6,
+            "module": "telegram:WatchUpdates",
+            "version": 1,
+            "parameters": {
+                "__IMTHOOK__": "TU_TELEGRAM_WEBHOOK_ID"
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 297,
+                    "y": -21,
+                    "name": "Bot Recepcion"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTHOOK__": {
+                            "data": {
+                                "editable": "false"
+                            },
+                            "label": "Telegram Bot"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTHOOK__",
+                        "type": "hook:telegramapi",
+                        "label": "Webhook",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "module": "ai-local-agent:RunLocalAIAgent",
+            "version": 0,
+            "parameters": {
+                "makeConnectionId": "TU_AI_PROVIDER_CONNECTION_ID"
+            },
+            "filter": {
+                "name": "Seguridad",
+                "conditions": [
+                    [
+                        {
+                            "a": "{{6.message.chat.id}}",
+                            "b": "TU_CHAT_ID",
+                            "o": "text:equal"
+                        }
+                    ]
+                ]
+            },
+            "mapper": {
+                "files": [],
+                "message": "{{6.message.text}}",
+                "threadId": "{{6.message.chat.id}}",
+                "outputType": "text",
+                "tokenLimit": "50",
+                "modelConfig": {
+                    "timeout": "",
+                    "recursionLimit": "300",
+                    "iterationsFromHistoryCount": "4"
+                },
+                "defaultModel": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+                "systemPrompt": "Eres un asistente de estudio especializado en el máster de IA y Data Engineering de --- el cual se te denomina con el nombre \"boti\".\n\nTu rol:\n- Responder preguntas sobre el curso de forma clara y educativa\n- Usar las notas del estudiante como referencia\n- Explicar conceptos de forma didáctica\n- Si no encuentras información, di \"No encontré eso en tus notas\"\n\nLa estructura de carpetas es:\nMi Bóveda → Curso → IA & Data Engineering → (subcarpetas con archivos .md)\n\nEl ID de la carpeta raíz es: TU_GOOGLE_DRIVE_FOLDER_ID\n\nCuando busques archivos, busca RECURSIVAMENTE dentro de esa carpeta y sus subcarpetas\n\nIMPORTANTE: Tienes dos herramientas HTTP:\n1. Úsala primero para BUSCAR el archivo en Google Drive\n2. Úsala después para DESCARGAR y leer su contenido\nSIEMPRE usa ambas herramientas antes de responder.\n\nSé amable, paciente y didáctico. Responde en español.\n\nSi no puedes acceder a los archivos, di exactamente:\n\"Error técnico accediendo a Drive\"\nNO respondas con conocimiento general bajo ningún concepto.",
+                "fallbackModel": "medium",
+                "promptCaching": "none",
+                "fallbackEnabled": true,
+                "fallbackConnectionId": "TU_AI_PROVIDER_CONNECTION_ID"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 906,
+                    "y": -290,
+                    "name": "IA Agent"
+                },
+                "restore": {
+                    "expect": {
+                        "files": {
+                            "mode": "chose"
+                        },
+                        "outputType": {
+                            "label": "Text"
+                        },
+                        "defaultModel": {
+                            "mode": "chose",
+                            "label": "Claude Haiku 4.5Fastest lightweight model for simple questions, quick edits, and instant responses"
+                        },
+                        "fallbackModel": {
+                            "label": "MediumModel: gpt-5-nano. Reasoning: low. A balanced, quick choice for clearly defined tasks needing reliable answers rather than deep analysis"
+                        },
+                        "promptCaching": {
+                            "label": "Automatic (always on)"
+                        },
+                        "fallbackConnectionId": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "ai-provider"
+                            },
+                            "label": "AI Provider connection"
+                        }
+                    },
+                    "parameters": {
+                        "makeConnectionId": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "ai-provider"
+                            },
+                            "label": "AI Provider connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "makeConnectionId",
+                        "type": "account:ai-provider,openai-gpt-3,anthropic-claude,gemini-ai-q9zyjp,ai-agent-foundry-openai,ai-agent-foundry-non-openai,mistral-ai,cohere,groq,ai-agent-xai,amazon-bedrock,ai-agent-openai-compatible",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "defaultModel",
+                        "type": "select",
+                        "label": "Model",
+                        "required": true
+                    },
+                    {
+                        "name": "fallbackEnabled",
+                        "type": "boolean",
+                        "label": "Enable fallback connection",
+                        "required": true
+                    },
+                    {
+                        "name": "fallbackConnectionId",
+                        "type": "account:ai-provider",
+                        "label": "Fallback connection",
+                        "required": true
+                    },
+                    {
+                        "name": "fallbackModel",
+                        "type": "select",
+                        "label": "Fallback model",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "small",
+                                "medium",
+                                "gpt-5-nano"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "tokenLimit",
+                        "type": "number",
+                        "label": "Maximum output length (%)",
+                        "validate": {
+                            "max": 100,
+                            "min": 20
+                        }
+                    },
+                    {
+                        "name": "promptCaching",
+                        "type": "select",
+                        "label": "Prompt caching",
+                        "validate": {
+                            "enum": [
+                                "none"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "systemPrompt",
+                        "type": "text",
+                        "label": "Instructions"
+                    },
+                    {
+                        "name": "message",
+                        "type": "text",
+                        "label": "Input",
+                        "required": true
+                    },
+                    {
+                        "name": "files",
+                        "spec": [
+                            {
+                                "name": "fileName",
+                                "type": "filename",
+                                "label": "File name",
+                                "semantic": "file:name"
+                            },
+                            {
+                                "name": "data",
+                                "type": "buffer",
+                                "label": "Data",
+                                "semantic": "file:data"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Input files"
+                    },
+                    {
+                        "name": "threadId",
+                        "type": "text",
+                        "label": "Conversation ID",
+                        "validate": {
+                            "max": 256
+                        }
+                    },
+                    {
+                        "name": "modelConfig",
+                        "spec": [
+                            {
+                                "name": "recursionLimit",
+                                "type": "number",
+                                "label": "Steps per agent call"
+                            },
+                            {
+                                "name": "iterationsFromHistoryCount",
+                                "type": "number",
+                                "label": "Maximum conversation history"
+                            },
+                            {
+                                "name": "timeout",
+                                "type": "number",
+                                "label": "Step timeout",
+                                "validate": {
+                                    "max": 600,
+                                    "min": 120
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Model configuration"
+                    },
+                    {
+                        "name": "outputType",
+                        "type": "select",
+                        "label": "Response format",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "text",
+                                "make-schema",
+                                "udt-schema"
+                            ]
+                        }
+                    }
+                ],
+                "advanced": true
+            },
+            "tools": [
+                {
+                    "name": "HTTP: Make a request",
+                    "description": "Busca archivos en Google Drive por texto. Devuelve id y nombre de archivos encontrados. Úsala con la palabra clave relevante de la pregunta del estudiante.",
+                    "flow": [
+                        {
+                            "id": 16,
+                            "module": "http:MakeRequest",
+                            "version": 4,
+                            "parameters": {
+                                "tlsType": "",
+                                "oAuthAccount": "YOUR_GOOGLE_OAUTH_CONNECTION_ID",
+                                "authenticationType": "oAuth"
+                            },
+                            "mapper": {
+                                "url": "https://www.googleapis.com/drive/v3/files?q=fullText+contains+%27{{query}}%27+and+trashed=false&fields=files(id,name,parents)&spaces=drive",
+                                "method": "get",
+                                "shareCookies": false,
+                                "parseResponse": true,
+                                "allowRedirects": true,
+                                "queryParameters": "{{4.queryParameters}}",
+                                "stopOnHttpError": true,
+                                "requestCompressedContent": true
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 627,
+                                    "y": 190,
+                                    "name": "HTTP Busqueda BBDD"
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "method": {
+                                            "mode": "chose",
+                                            "label": "GET"
+                                        },
+                                        "headers": {
+                                            "mode": "chose"
+                                        },
+                                        "contentType": {
+                                            "label": "Empty"
+                                        },
+                                        "shareCookies": {
+                                            "mode": "chose"
+                                        },
+                                        "parseResponse": {
+                                            "mode": "chose"
+                                        },
+                                        "allowRedirects": {
+                                            "mode": "chose"
+                                        },
+                                        "paginationType": {
+                                            "label": "Empty"
+                                        },
+                                        "queryParameters": {
+                                            "mode": "edit",
+                                            "extra": {
+                                                "aiHelp": "Add parameters to specify or customize your request. This is mostly for GET and DELETE methods."
+                                            }
+                                        },
+                                        "stopOnHttpError": {
+                                            "mode": "chose"
+                                        },
+                                        "requestCompressedContent": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "tlsType": {
+                                            "label": "Empty"
+                                        },
+                                        "oAuthAccount": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "oauth2"
+                                            },
+                                            "label": "Google Drive OAuth 2.0 connection"
+                                        },
+                                        "authenticationType": {
+                                            "label": "OAuth 2.0Use when the service requires client credentials (Client ID y Secret)."
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "authenticationType",
+                                        "type": "select",
+                                        "label": "Authentication type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "noAuth",
+                                                "apiKey",
+                                                "basicAuth",
+                                                "oAuth"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "tlsType",
+                                        "type": "select",
+                                        "label": "Transport layer security (TLS)",
+                                        "validate": {
+                                            "enum": [
+                                                "mTls",
+                                                "tls"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "proxyKeychain",
+                                        "type": "keychain:proxy",
+                                        "label": "Proxy"
+                                    },
+                                    {
+                                        "name": "oAuthAccount",
+                                        "type": "account:oauth2",
+                                        "label": "Credentials",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "url",
+                                        "type": "url",
+                                        "label": "URL",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "method",
+                                        "type": "select",
+                                        "label": "Method",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "get",
+                                                "head",
+                                                "post",
+                                                "put",
+                                                "patch",
+                                                "delete",
+                                                "options"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "headers",
+                                        "spec": {
+                                            "name": "value",
+                                            "spec": [
+                                                {
+                                                    "name": "name",
+                                                    "type": "text",
+                                                    "label": "Name",
+                                                    "required": true,
+                                                    "validate": {
+                                                        "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "value",
+                                                    "type": "text",
+                                                    "label": "Value"
+                                                }
+                                            ],
+                                            "type": "collection",
+                                            "label": "Header"
+                                        },
+                                        "type": "array",
+                                        "label": "Headers"
+                                    },
+                                    {
+                                        "name": "queryParameters",
+                                        "spec": {
+                                            "name": "value",
+                                            "spec": [
+                                                {
+                                                    "name": "name",
+                                                    "type": "text",
+                                                    "label": "Name",
+                                                    "required": true
+                                                },
+                                                {
+                                                    "name": "value",
+                                                    "type": "text",
+                                                    "label": "Value"
+                                                }
+                                            ],
+                                            "type": "collection",
+                                            "label": "Parameter"
+                                        },
+                                        "type": "array",
+                                        "label": "Query parameters"
+                                    },
+                                    {
+                                        "name": "contentType",
+                                        "type": "select",
+                                        "label": "Body content type",
+                                        "validate": {
+                                            "enum": [
+                                                "json",
+                                                "multipart",
+                                                "urlEncoded",
+                                                "custom"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "parseResponse",
+                                        "type": "boolean",
+                                        "label": "Parse response",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "stopOnHttpError",
+                                        "type": "boolean",
+                                        "label": "Return error if HTTP request fails",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "timeout",
+                                        "type": "uinteger",
+                                        "label": "Timeout",
+                                        "validate": {
+                                            "max": 300,
+                                            "min": 1
+                                        }
+                                    },
+                                    {
+                                        "name": "allowRedirects",
+                                        "type": "boolean",
+                                        "label": "Allow redirects",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "shareCookies",
+                                        "type": "boolean",
+                                        "label": "Share cookies with other HTTP modules",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "requestCompressedContent",
+                                        "type": "boolean",
+                                        "label": "Request compressed content",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "paginationType",
+                                        "type": "select",
+                                        "label": "Pagination type",
+                                        "validate": {
+                                            "enum": [
+                                                "offsetBased",
+                                                "pageBased",
+                                                "urlBased",
+                                                "tokenBased"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "data",
+                                        "type": "any",
+                                        "label": "Data"
+                                    },
+                                    {
+                                        "name": "statusCode",
+                                        "type": "number",
+                                        "label": "Status Code"
+                                    },
+                                    {
+                                        "name": "headers",
+                                        "spec": [
+                                            {
+                                                "name": "content-length",
+                                                "type": "text",
+                                                "label": "Content-Length"
+                                            },
+                                            {
+                                                "name": "content-encoding",
+                                                "type": "text",
+                                                "label": "Content-Encoding"
+                                            },
+                                            {
+                                                "name": "content-type",
+                                                "type": "text",
+                                                "label": "Content-Type"
+                                            },
+                                            {
+                                                "name": "server",
+                                                "type": "text",
+                                                "label": "Server"
+                                            },
+                                            {
+                                                "name": "cache-control",
+                                                "type": "text",
+                                                "label": "Cache-Control"
+                                            },
+                                            {
+                                                "name": "set-cookie",
+                                                "spec": {
+                                                    "type": "text"
+                                                },
+                                                "type": "array",
+                                                "label": "Set-Cookie"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Headers"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "HTTP: Make a request",
+                    "description": "Descarga y lee el contenido de un archivo de Google Drive dado su ID. Úsala después de buscar para obtener el contenido real del archivo .md.",
+                    "flow": [
+                        {
+                            "id": 17,
+                            "module": "http:MakeRequest",
+                            "version": 4,
+                            "parameters": {
+                                "tlsType": "",
+                                "oAuthAccount": "TU_GOOGLE_OAUTH_CONNECTION_ID",
+                                "authenticationType": "oAuth"
+                            },
+                            "mapper": {
+                                "url": "https://www.googleapis.com/drive/v3/files/{{fileId}}?alt=media",
+                                "method": "get",
+                                "shareCookies": false,
+                                "parseResponse": true,
+                                "allowRedirects": true,
+                                "stopOnHttpError": true,
+                                "requestCompressedContent": true
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1146,
+                                    "y": 209,
+                                    "name": "HTTP Descarga BBDD"
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "method": {
+                                            "mode": "chose",
+                                            "label": "GET"
+                                        },
+                                        "headers": {
+                                            "mode": "chose"
+                                        },
+                                        "contentType": {
+                                            "label": "Empty"
+                                        },
+                                        "shareCookies": {
+                                            "mode": "chose"
+                                        },
+                                        "parseResponse": {
+                                            "mode": "chose"
+                                        },
+                                        "allowRedirects": {
+                                            "mode": "chose"
+                                        },
+                                        "paginationType": {
+                                            "label": "Empty"
+                                        },
+                                        "queryParameters": {
+                                            "mode": "chose"
+                                        },
+                                        "stopOnHttpError": {
+                                            "mode": "chose"
+                                        },
+                                        "requestCompressedContent": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "tlsType": {
+                                            "label": "Empty"
+                                        },
+                                        "oAuthAccount": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "oauth2"
+                                            },
+                                            "label": "Google Drive OAuth 2.0 connection"
+                                        },
+                                        "authenticationType": {
+                                            "label": "OAuth 2.0Use when the service requires client credentials (Client ID and Secret)."
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "authenticationType",
+                                        "type": "select",
+                                        "label": "Authentication type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "noAuth",
+                                                "apiKey",
+                                                "basicAuth",
+                                                "oAuth"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "tlsType",
+                                        "type": "select",
+                                        "label": "Transport layer security (TLS)",
+                                        "validate": {
+                                            "enum": [
+                                                "mTls",
+                                                "tls"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "proxyKeychain",
+                                        "type": "keychain:proxy",
+                                        "label": "Proxy"
+                                    },
+                                    {
+                                        "name": "oAuthAccount",
+                                        "type": "account:oauth2",
+                                        "label": "Credentials",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "url",
+                                        "type": "url",
+                                        "label": "URL",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "method",
+                                        "type": "select",
+                                        "label": "Method",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "get",
+                                                "head",
+                                                "post",
+                                                "put",
+                                                "patch",
+                                                "delete",
+                                                "options"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "headers",
+                                        "spec": {
+                                            "name": "value",
+                                            "spec": [
+                                                {
+                                                    "name": "name",
+                                                    "type": "text",
+                                                    "label": "Name",
+                                                    "required": true,
+                                                    "validate": {
+                                                        "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "value",
+                                                    "type": "text",
+                                                    "label": "Value"
+                                                }
+                                            ],
+                                            "type": "collection",
+                                            "label": "Header"
+                                        },
+                                        "type": "array",
+                                        "label": "Headers"
+                                    },
+                                    {
+                                        "name": "queryParameters",
+                                        "spec": {
+                                            "name": "value",
+                                            "spec": [
+                                                {
+                                                    "name": "name",
+                                                    "type": "text",
+                                                    "label": "Name",
+                                                    "required": true
+                                                },
+                                                {
+                                                    "name": "value",
+                                                    "type": "text",
+                                                    "label": "Value"
+                                                }
+                                            ],
+                                            "type": "collection",
+                                            "label": "Parameter"
+                                        },
+                                        "type": "array",
+                                        "label": "Query parameters"
+                                    },
+                                    {
+                                        "name": "contentType",
+                                        "type": "select",
+                                        "label": "Body content type",
+                                        "validate": {
+                                            "enum": [
+                                                "json",
+                                                "multipart",
+                                                "urlEncoded",
+                                                "custom"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "parseResponse",
+                                        "type": "boolean",
+                                        "label": "Parse response",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "stopOnHttpError",
+                                        "type": "boolean",
+                                        "label": "Return error if HTTP request fails",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "timeout",
+                                        "type": "uinteger",
+                                        "label": "Timeout",
+                                        "validate": {
+                                            "max": 300,
+                                            "min": 1
+                                        }
+                                    },
+                                    {
+                                        "name": "allowRedirects",
+                                        "type": "boolean",
+                                        "label": "Allow redirects",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "shareCookies",
+                                        "type": "boolean",
+                                        "label": "Share cookies with other HTTP modules",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "requestCompressedContent",
+                                        "type": "boolean",
+                                        "label": "Request compressed content",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "paginationType",
+                                        "type": "select",
+                                        "label": "Pagination type",
+                                        "validate": {
+                                            "enum": [
+                                                "offsetBased",
+                                                "pageBased",
+                                                "urlBased",
+                                                "tokenBased"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "data",
+                                        "type": "any",
+                                        "label": "Data"
+                                    },
+                                    {
+                                        "name": "statusCode",
+                                        "type": "number",
+                                        "label": "Status Code"
+                                    },
+                                    {
+                                        "name": "headers",
+                                        "spec": [
+                                            {
+                                                "name": "content-length",
+                                                "type": "text",
+                                                "label": "Content-Length"
+                                            },
+                                            {
+                                                "name": "content-encoding",
+                                                "type": "text",
+                                                "label": "Content-Encoding"
+                                            },
+                                            {
+                                                "name": "content-type",
+                                                "type": "text",
+                                                "label": "Content-Type"
+                                            },
+                                            {
+                                                "name": "server",
+                                                "type": "text",
+                                                "label": "Server"
+                                            },
+                                            {
+                                                "name": "cache-control",
+                                                "type": "text",
+                                                "label": "Cache-Control"
+                                            },
+                                            {
+                                                "name": "set-cookie",
+                                                "spec": {
+                                                    "type": "text"
+                                                },
+                                                "type": "array",
+                                                "label": "Set-Cookie"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Headers"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+            "onerror": [
+                {
+                    "id": 18,
+                    "module": "builtin:Resume",
+                    "version": 1,
+                    "parameters": {},
+                    "mapper": {
+                        "files": [],
+                        "metadata": {
+                            "warnings": [],
+                            "fallbackError": "",
+                            "fallbackModel": "",
+                            "executionSteps": [],
+                            "executionTimeMs": "",
+                            "tokenUsageSummary": {
+                                "contextUsed": "",
+                                "totalTokens": "",
+                                "promptTokens": "",
+                                "contextWindow": "",
+                                "cacheReadTokens": "",
+                                "completionTokens": "",
+                                "cacheCreationTokens": ""
+                            },
+                            "lastAgentIterationId": ""
+                        },
+                        "response": "⚠️ Boti tuvo un problema técnico. Inténtalo en unos segundos ;)",
+                        "threadId": "",
+                        "jsonResponse": ""
+                    },
+                    "metadata": {
+                        "designer": {
+                            "x": 894,
+                            "y": -634,
+                            "name": "Manejo de Errores"
+                        },
+                        "restore": {
+                            "expect": {
+                                "files": {
+                                    "mode": "chose"
+                                },
+                                "metadata": {
+                                    "nested": {
+                                        "warnings": {
+                                            "mode": "chose"
+                                        },
+                                        "fallbackUsed": {
+                                            "mode": "chose"
+                                        },
+                                        "executionSteps": {
+                                            "mode": "chose"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "expect": [
+                            {
+                                "name": "response",
+                                "type": "text",
+                                "label": "Response"
+                            },
+                            {
+                                "name": "jsonResponse",
+                                "type": "any",
+                                "label": "JSON response"
+                            },
+                            {
+                                "name": "threadId",
+                                "type": "text",
+                                "label": "Conversation ID"
+                            },
+                            {
+                                "name": "files",
+                                "spec": [
+                                    {
+                                        "name": "filename",
+                                        "type": "text",
+                                        "label": "Filename"
+                                    },
+                                    {
+                                        "name": "mimeType",
+                                        "type": "text",
+                                        "label": "MIME type"
+                                    },
+                                    {
+                                        "name": "data",
+                                        "type": "buffer",
+                                        "label": "Data"
+                                    },
+                                    {
+                                        "name": "size",
+                                        "type": "number",
+                                        "label": "Size"
+                                    }
+                                ],
+                                "type": "array",
+                                "label": "Files"
+                            },
+                            {
+                                "name": "metadata",
+                                "spec": [
+                                    {
+                                        "name": "executionSteps",
+                                        "spec": {
+                                            "name": "value",
+                                            "type": "text"
+                                        },
+                                        "type": "array",
+                                        "label": "Execution steps"
+                                    },
+                                    {
+                                        "name": "tokenUsageSummary",
+                                        "spec": [
+                                            {
+                                                "name": "promptTokens",
+                                                "type": "number",
+                                                "label": "Prompt tokens"
+                                            },
+                                            {
+                                                "name": "cacheCreationTokens",
+                                                "type": "number",
+                                                "label": "Cache creation tokens"
+                                            },
+                                            {
+                                                "name": "cacheReadTokens",
+                                                "type": "number",
+                                                "label": "Cache read tokens"
+                                            },
+                                            {
+                                                "name": "completionTokens",
+                                                "type": "number",
+                                                "label": "Completion tokens"
+                                            },
+                                            {
+                                                "name": "totalTokens",
+                                                "type": "number",
+                                                "label": "Total tokens"
+                                            },
+                                            {
+                                                "name": "contextWindow",
+                                                "type": "number",
+                                                "label": "Context window"
+                                            },
+                                            {
+                                                "name": "contextUsed",
+                                                "type": "number",
+                                                "label": "Context used"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Token usage summary"
+                                    },
+                                    {
+                                        "name": "executionTimeMs",
+                                        "type": "number",
+                                        "label": "Execution time (ms)"
+                                    },
+                                    {
+                                        "name": "lastAgentIterationId",
+                                        "type": "text",
+                                        "label": "Last agent iteration ID"
+                                    },
+                                    {
+                                        "name": "warnings",
+                                        "spec": [
+                                            {
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "type": "array",
+                                        "label": "Warnings"
+                                    },
+                                    {
+                                        "name": "fallbackUsed",
+                                        "type": "boolean",
+                                        "label": "Fallback used"
+                                    },
+                                    {
+                                        "name": "fallbackModel",
+                                        "type": "text",
+                                        "label": "Fallback model"
+                                    },
+                                    {
+                                        "name": "fallbackError",
+                                        "type": "text",
+                                        "label": "Fallback reason (primary error)"
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "Metadata"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "module": "telegram:SendReplyMessage",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": "TU_TELEGRAM_CONNECTION_ID"
+            },
+            "mapper": {
+                "text": "📚 *Asistente --- IA*\n\n{{if(4.response; 4.response; \"⚠️ Boti tuvo un problema técnico. Inténtalo en unos segundos ;) \")}}\n\n_Basado en tus notas de Obsidian_",
+                "chatId": "{{6.message.chat.id}}",
+                "parseMode": "",
+                "replyMarkup": "",
+                "messageThreadId": "",
+                "replyToMessageId": "",
+                "replyMarkupAssembleType": "reply_markup_enter"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1457,
+                    "y": -39,
+                    "name": "Bot Respuestas"
+                },
+                "restore": {
+                    "expect": {
+                        "parseMode": {
+                            "label": "Empty"
+                        },
+                        "disableNotification": {
+                            "mode": "chose"
+                        },
+                        "replyMarkupAssembleType": {
+                            "label": "Enter the Reply Markup"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "telegram"
+                            },
+                            "label": "Telegram Bot connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:telegram",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "chatId",
+                        "type": "text",
+                        "label": "Chat ID",
+                        "required": true
+                    },
+                    {
+                        "name": "text",
+                        "type": "text",
+                        "label": "Text",
+                        "required": true
+                    },
+                    {
+                        "name": "messageThreadId",
+                        "type": "number",
+                        "label": "Message Thread ID"
+                    },
+                    {
+                        "name": "parseMode",
+                        "type": "select",
+                        "label": "Parse Mode",
+                        "validate": {
+                            "enum": [
+                                "Markdown",
+                                "HTML"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "disableNotification",
+                        "type": "boolean",
+                        "label": "Disable Notifications"
+                    },
+                    {
+                        "name": "disableWebPagePreview",
+                        "type": "boolean",
+                        "label": "Disable Link Previews"
+                    },
+                    {
+                        "name": "replyToMessageId",
+                        "type": "number",
+                        "label": "Original Message ID"
+                    },
+                    {
+                        "name": "replyMarkupAssembleType",
+                        "type": "select",
+                        "label": "Enter/Assemble the Reply Markup Field",
+                        "validate": {
+                            "enum": [
+                                "reply_markup_enter",
+                                "reply_markup_assemble"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "replyMarkup",
+                        "type": "text",
+                        "label": "Reply Markup"
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com",
+        "notes": []
+    }
+}
