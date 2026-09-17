@@ -1,6 +1,6 @@
 # AI Study Bot 🚀
 
-Bot de Telegram con IA que lee tus notas de Obsidian desde Google Drive y responde preguntas sobre tu curso.
+Bot de Telegram con IA que conecta Obsidian y Google Drive para consultar tus apuntes, buscar información relevante y generar respuestas basadas en el contenido de tu curso.
 
 ## ¿Qué hace?
 
@@ -11,6 +11,13 @@ Tienes tus apuntes de Obsidian (.md) sincronizados con Google Drive. Al enviar u
 - Utiliza un AI Agent para generar la respuesta basándose en tus notas.
 - Devuelve la respuesta directamente en Telegram.
 - Restringe el acceso mediante Chat ID.
+
+<p align="center">
+  <img src="flujo-mkae.png" alt="Flujo del Escenario en Make" width="650" style="vertical-align: middle; margin-right: 15px;" />
+  <img src="ui-telegram.png" alt="Demo en Telegram" width="300" style="vertical-align: middle;" />
+</p>
+
+
 
 ## Arquitectura
 
