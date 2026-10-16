@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="imagenes/studybott" width="110" alt="studybot Logo">
+</p>
+
 # AI Study Bot 🚀
 
 Bot de Telegram con IA que conecta Obsidian y Google Drive para consultar tus apuntes, buscar información relevante y generar respuestas basadas en el contenido de tu curso.
