@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="imagenes/studybott" width="110" alt="studybot Logo">
+  <img src="studybott" width="110" alt="studybot Logo">
 </p>
 
 # AI Study Bot 🚀
