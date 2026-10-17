@@ -137,11 +137,8 @@ Activa el escenario y envía una pregunta al bot desde Telegram.
 
 > No subas credenciales reales al repositorio.
 
-## Contribuciones 🤝
+## Nota Importante ⚠️
 
-Las Pull Requests son bienvenidas.
+Este bot **no está disponible para uso directo del público**, ya que es una herramienta de uso estrictamente personal y privada (protegida por Chat ID). 
 
-1. Haz un fork del repositorio.
-2. Crea una nueva rama.
-3. Realiza tus cambios.
-4. Abre un Pull Request.
+Si deseas probarlo, utilizarlo o adaptarlo a tus propias necesidades, **deberás copiar el archivo .json de este repositorio y desplegar tu propia instancia** siguiendo paso a paso las instrucciones de configuración detalladas en la sección **"Cómo Montarlo"**.
